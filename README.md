@@ -139,6 +139,6 @@ No clear or consistent relationship between GDP growth and changes in wages or f
 
 The project shows that the development of food prices and wages over time is neither linear nor directly determined by macroeconomic indicators.
 
-A detailed data quality assessment and time series analysis revealed limitations in the dataset (e.g. incomplete coverage for certain food categories), which were taken into account during interpretation.
+A detailed data quality assessment and time series analysis revealed limitations in the dataset (e.g. incomplete coverage for certain food categories).
 
 These findings were taken into account when interpreting the results and formulating conclusions for individual research questions.
