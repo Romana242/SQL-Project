@@ -1,140 +1,144 @@
 # SQL Project
 
-## 1. Zadání
+## 1. Assignment
 
-Cílem projektu bylo pro analytické oddělení společnosti zabývající se životní úrovní obyvatel odpovědět na několik výzkumných otázek týkajících se dostupnosti základních potravin pro širokou veřejnost.
+The goal of this project was to provide the analytics department of a company focused on the standard of living of citizens with answers to several research questions concerning the availability of basic food products for the general public.
 
-Pro účely prezentace výsledků na odborné konferenci bylo nutné připravit robustní datový základ, který umožní porovnání vývoje cen potravin vůči průměrným příjmům obyvatel v čase.
+To present the results at an upcoming conference focused on this topic, it was necessary to prepare a robust dataset enabling comparison of food affordability relative to average income over a defined time period.
 
-Součástí zadání bylo také vytvoření doplňkové datové sady obsahující makroekonomické ukazatele (HDP, GINI koeficient a populace) pro vybrané evropské státy ve stejném časovém období jako primární analýza pro Českou republiku.
-
----
-
-## 2. Tvorba tabulek
-
-### 2.1 Tvorba 1. (primární) tabulky
-
-Při tvorbě primární analytické tabulky byly identifikovány klíčové požadavky vyplývající z výzkumných otázek. Na jejich základě byly vybrány následující zdrojové tabulky:
-
-- `czechia_price` (sloupce: `value`, `date_from`)
-- `czechia_price_category` (sloupec: `name`)
-- `czechia_payroll` (sloupec: `value`)
-- `czechia_payroll_industry_branch` (sloupec: `name`)
-
-Pro propojení relevantních dat byla použita operace `JOIN`, která zajistila integraci pouze odpovídajících záznamů mezi tabulkami.
-
-Na základě provedené kontroly kvality dat byly identifikovány následující skutečnosti:
-
-- tabulka `czechia_payroll` obsahuje ve sloupci `value_type_code` dva různé typy hodnot:
-  - 316 = průměrný počet zaměstnanců
-  - 5958 = průměrná hrubá mzda  
-  Pro další analýzu bylo nutné data filtrovat pouze na hodnotu 5958,
-- časová období mezd a cen nejsou plně shodná,
-- sloupec `region_code` v tabulce `czechia_price` obsahuje jak data za celou ČR, tak regionální hodnoty; pro analýzu byla použita pouze agregovaná data (`region_code IS NULL`),
-- analýza časových řad ukázala, že některé potravinové kategorie nemají kompletní historická data v celém sledovaném období 2006–2018. Například kategorie „jakostní víno bílé“ je dostupná až od roku 2015, což omezuje její využití pro dlouhodobé srovnání.
+As a supplementary output, a dataset containing macroeconomic indicators (GDP, GINI coefficient, and population) for selected European countries was also created for the same time period as the primary dataset for the Czech Republic.
 
 ---
 
-### 2.2 Tvorba 2. tabulky
+## 2. Data Preparation
 
-Druhá tabulka byla vytvořena za účelem doplnění makroekonomických dat pro evropské státy.
+### 2.1 Primary dataset creation
 
-Tabulka `countries` obsahuje sloupec `continent`, který umožnil filtraci evropských států dle zadání. Pro vytvoření výsledné tabulky bylo nutné propojit:
+The primary analytical table was designed based on the requirements derived from the research questions. The following source tables were identified as relevant:
 
-- `economies` (sloupce: `year`, `gdp`, `population`, `gini`)
-- `countries` (sloupce: `country`, `continent`)
+- `czechia_price` (columns: `value`, `date_from`)
+- `czechia_price_category` (column: `name`)
+- `czechia_payroll` (column: `value`)
+- `czechia_payroll_industry_branch` (column: `name`)
 
-Pro spojení byla použita operace `JOIN`.
+The tables were combined using SQL `JOIN` operations to ensure that only matching and relevant records were included.
 
-Následně byla provedena manuální kontrola výsledného seznamu států, aby byla ověřena správnost zařazení evropských zemí (a vyloučení nesprávně kategorizovaných položek).
+Based on data quality checks, the following findings were identified:
 
----
-
-## 3. Výzkumné otázky
-
-### 3.1 Růst mezd v čase
-
-**Otázka:** Rostou v průběhu let mzdy ve všech odvětvích, nebo v některých dochází k poklesu?
-
-**Postup:**
-1. výpočet průměrné mzdy v jednotlivých odvětvích a letech  
-2. přidání hodnot předchozího roku pomocí `LAG()`  
-3. výpočet meziročních rozdílů  
-
-**Závěr:**
-Na základě výskytu záporných meziročních hodnot lze konstatovat, že mzdy nerostly ve všech odvětvích kontinuálně. V některých odvětvích došlo v určitých letech k poklesu.
+- the `czechia_payroll` table contains two types of values in the `value_type_code` column:
+  - 316 = average number of employees
+  - 5958 = average gross wage  
+  Only records with value 5958 were used for further analysis,
+- the time coverage of wages and prices is not fully aligned,
+- the `region_code` column in `czechia_price` contains both national and regional data; only aggregated national-level data (`region_code IS NULL`) was used,
+- time series analysis revealed that some food categories do not cover the full period 2006–2018 (e.g. “quality white wine”), which limits their use for long-term comparisons.
 
 ---
 
-### 3.2 Kupní síla (potraviny vs. mzdy)
+### 2.2 Secondary dataset creation
 
-**Otázka:** Kolik litrů mléka a kilogramů chleba bylo možné pořídit za průměrnou mzdu v prvním a posledním srovnatelném období?
+The secondary dataset was created to provide additional macroeconomic data for European countries.
 
-**Postup:**
-1. identifikace společných let pro mzdy a ceny (2006 a 2018)  
-2. ověření názvů a jednotek potravin  
-3. výpočet průměrných mezd a cen  
-4. výpočet poměru mzda vs. cena  
-5. kontrolní přepočet výsledků  
+The `countries` table contains a `continent` column, which was used to filter European countries according to the assignment requirements. The final dataset was created by joining:
 
-**Závěr:**
-- 2006: cca 1 287 kg chleba nebo 1 437 l mléka  
-- 2018: cca 1 342 kg chleba nebo 1 642 l mléka  
+- `economies` (columns: `year`, `gdp`, `population`, `gini`)
+- `countries` (columns: `country`, `continent`)
+
+A manual validation of the resulting country list was performed to ensure correct classification of European countries and to exclude incorrectly categorized entries.
 
 ---
 
-### 3.3 Nejpomalejší zdražování potravin
+## 3. Research Questions
 
-**Otázka:** Která kategorie potravin zdražuje nejpomaleji?
+### 3.1 Wage development over time
 
-**Postup:**
-1. výpočet průměrných cen potravin za jednotlivé roky  
-2. přidání hodnot předchozího roku  
-3. výpočet meziroční procentní změny  
-4. výpočet průměrné meziroční změny  
+**Question:** Do wages increase over time in all industries, or do they decrease in some?
 
-**Kontroly:**
-- ověřena úplnost časových řad (např. „jakostní víno bílé“ má nekompletní historii),
-- kontrola záporných hodnot u kategorií s poklesem,
-- ověřeno, že nejde o důsledek chybějících dat,
-- kontrola absence NULL hodnot v cenách.
+**Methodology:**
+1. calculation of average wages per industry and year  
+2. application of `LAG()` to retrieve previous year values  
+3. calculation of year-over-year differences  
 
-**Závěr:**
-Nejnižší průměrný meziroční růst byl zaznamenán u banánů žlutých (+0,81 %). Ačkoli některé komodity vykazují záporný růst (např. cukr krystalový a rajská jablka), tyto hodnoty nejsou odpovědí na otázku, protože ta se týká nejnižšího růstu, nikoli poklesu.
+**Conclusion:**
+Based on the presence of negative year-over-year values, wages do not increase continuously across all industries. In some industries, temporary declines were observed.
 
 ---
 
-### 3.4 Rozdíl růstu mezd a cen
+### 3.2 Purchasing power (food vs. wages)
 
-**Otázka:** Existuje rok, kdy byl růst cen potravin výrazně vyšší než růst mezd (o více než 10 %)?
+**Question:** How many liters of milk and kilograms of bread could be purchased using the average wage in the first and last comparable periods?
 
-**Postup:**
-1. výpočet průměrných meziročních změn mezd a cen  
-2. výpočet rozdílů mezi těmito změnami  
+**Methodology:**
+1. identification of common years for wages and prices (2006 and 2018)
+2. verification of food names and units 
+3. calculation of average wage across the economy and food prices 
+4. calculation of purchasing power ratios  
+5. validation of results
 
-**Závěr:**
-Maximální rozdíl mezi růstem cen a mezd nepřesáhl 10 procentních bodů (max. cca +7,11 p. b.). Na základě analýzy nebyl identifikován rok, který by splňoval zadanou podmínku.
+**Note:**
+For this question, I did not analyze wages at the level of individual industries, as the task focused on overall purchasing power. Therefore, I used the average wage across the entire economy for each year, which better reflects the concept of an average consumer.
 
----
-
-### 3.5 Vliv HDP na mzdy a ceny
-
-**Otázka:** Má růst HDP vliv na růst mezd a cen potravin?
-
-**Postup:**
-1. výpočet meziročních změn HDP, mezd a cen  
-2. porovnání aktuálních a předchozích hodnot HDP  
-3. analýza korelace mezi ukazateli  
-
-**Závěr:**
-Analýza neprokázala jednoznačnou závislost mezi růstem HDP a růstem mezd ani cen potravin. V některých obdobích lze pozorovat podobné trendy, tento vztah však není konzistentní. Vývoj mezd i cen je pravděpodobně ovlivněn širším spektrem ekonomických faktorů.
+**Conclusion:**
+- 2006: approximately 1,287 kg of bread or 1,437 liters of milk  
+- 2018: approximately 1,342 kg of bread or 1,642 liters of milk  
 
 ---
 
-## 4. Shrnutí
+### 3.3 Slowest price growth among food categories
 
-Projekt ukázal, že vývoj cen potravin a mezd v čase není lineární ani jednoznačně determinovaný makroekonomickými ukazateli.
+**Question:** Which food category shows the slowest price growth?
 
-Současně byla v rámci přípravy dat provedena detailní kontrola kvality dat a analýza časových řad, která odhalila omezení datasetu (např. neúplné časové řady u některých komodit).
+**Methodology:**
+1. calculation of average annual prices per food category
+2. inclusion of previous year values
+3. computation of year-over-year percentage changes  
+4. calculation of average annual growth rates
 
-Tato zjištění byla zohledněna při interpretaci výsledků a při formulaci závěrů jednotlivých výzkumných otázek.
+**Note:**
+Time series validation revealed that some food categories (e.g. “quality white wine”) have incomplete historical coverage, which limits their suitability for long-term comparisons. Additionally, price development was checked to ensure that observed trends were not driven by extreme values but reflect long-term behavior.
+
+**Conclusion:**
+The lowest average annual growth rate was observed for bananas (+0.81%). Although some categories showed negative growth (e.g. sugar and tomatoes), the question focused on the lowest growth rate rather than price declines.
+
+---
+
+### 3.4 Difference between wage and price growth
+
+**Question:** Is there a year in which food price growth exceeded wage growth by more than 10 percentage points?
+
+**Methodology:**
+1. calculation of year-over-year changes in wages and prices  
+2. comparison of both growth rates
+
+**Note:**
+The analysis was based on aggregated average food prices and average wages across the economy. Although some categories (e.g. “quality white wine”) have incomplete data coverage, their impact on aggregated results is considered marginal and was not explicitly excluded.
+
+**Conclusion:**
+No year exceeded the threshold of a 10 percentage point difference between wage and price growth (maximum observed difference: approx. 7.11 p.p.).
+
+---
+
+### 3.5 Impact of GDP on wages and prices
+
+**Question:** Does GDP growth influence changes in wages and food prices?
+
+**Methodology:**
+1. calculation of year-over-year changes in GDP, wages, and prices
+2. comparison with previous-year GDP values  
+3. comparison of trends across indicators
+
+**Note:**
+An additional manual validation was performed by exporting data to CSV format and verifying results using conditional formatting and visual inspection in a spreadsheet tool. This served as an independent check of the SQL outputs.
+
+**Conclusion:**
+No clear or consistent relationship between GDP growth and changes in wages or food prices was identified. While some periods show similar trends, the relationship is not stable, suggesting that other economic factors also play a significant role.
+
+---
+
+## 4. Summary
+
+The project shows that the development of food prices and wages over time is neither linear nor directly determined by macroeconomic indicators.
+
+A detailed data quality assessment and time series analysis revealed limitations in the dataset (e.g. incomplete coverage for certain food categories), which were taken into account during interpretation.
+
+These findings were taken into account when interpreting the results and formulating conclusions for individual research questions.
